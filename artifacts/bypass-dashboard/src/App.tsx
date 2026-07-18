@@ -1,4 +1,4 @@
-import { MusicWidget } from './components/MusicWidget';  // 👈 NUEVA línea
+import { MusicWidget } from './components/MusicWidget';  // 👈 NUEVA LÍNEA
 
 // ... tus imports originales (BrowserRouter, Routes, Route, etc.) ...
 
@@ -16,7 +16,7 @@ function App() {
       */}
 
       {/* 🎵 NUEVO: Widget de música al final */}
-      <MusicWidget />  {/* 👈 NUEVA línea */}
+      <MusicWidget />  {/* 👈 NUEVA LÍNEA */}
     </div>
   );
 }
