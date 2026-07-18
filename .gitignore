@@ -2,6 +2,8 @@
 
 # compiled output
 dist
+!bypass-bot/dist
+!bypass-bot/dist/**
 tmp
 out-tsc
 *.tsbuildinfo

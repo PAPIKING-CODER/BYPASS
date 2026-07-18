@@ -10,10 +10,12 @@ import json
 import time
 import asyncio
 import logging
+import secrets
+import hmac
+import hashlib
 import threading
 from datetime import datetime, timezone
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import discord
 from discord import app_commands
@@ -766,29 +768,209 @@ async def help_cmd(interaction: discord.Interaction):
     embed.set_footer(text=_footer())
     await interaction.response.send_message(embed=embed)
 
-# ── HEALTH SERVER ───────────────────────────────────────────────
+# ── WEB SERVER (Dashboard + API) ────────────────────────────────
 
-class _HealthHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        body = b'{"status":"online","bot":"KING BYPASS"}'
-        self.send_response(200)
-        self.send_header("Content-Type", "application/json")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-    def log_message(self, *_): pass
+from aiohttp import web as _web
 
-def start_health():
-    server = HTTPServer(("0.0.0.0", PORT), _HealthHandler)
-    threading.Thread(target=server.serve_forever, daemon=True).start()
-    logger.info(f"🌐 Health server on port {PORT}")
+BOT_DIR  = os.path.dirname(os.path.abspath(__file__))
+DIST_DIR = os.path.join(BOT_DIR, "dist")
+
+SESSION_SECRET_WEB      = os.environ.get("SESSION_SECRET", secrets.token_hex(32))
+DISCORD_CLIENT_ID_WEB   = os.environ.get("DISCORD_CLIENT_ID", "1525040833814855710")
+DISCORD_CLIENT_SECRET_W = os.environ.get("DISCORD_CLIENT_SECRET", "")
+DISCORD_REDIRECT_URI_W  = os.environ.get(
+    "DISCORD_REDIRECT_URI",
+    "https://bypass-5.onrender.com/api/auth/discord/callback"
+)
+DISCORD_API = "https://discord.com/api/v10"
+
+_sessions: dict = {}
+
+def _sign(value: str) -> str:
+    return hmac.new(SESSION_SECRET_WEB.encode(), value.encode(), hashlib.sha256).hexdigest()
+
+def _get_session(request) -> dict | None:
+    cookie = request.cookies.get("sid", "")
+    if "." not in cookie:
+        return None
+    sid, sig = cookie.rsplit(".", 1)
+    if not hmac.compare_digest(sig, _sign(sid)):
+        return None
+    return _sessions.get(sid)
+
+def _set_session(response, sid: str, data: dict):
+    _sessions[sid] = data
+    sig = _sign(sid)
+    response.set_cookie("sid", f"{sid}.{sig}", httponly=True, samesite="Lax", max_age=7*24*3600)
+
+def _clear_session(response, request):
+    cookie = request.cookies.get("sid", "")
+    if "." in cookie:
+        sid = cookie.rsplit(".", 1)[0]
+        _sessions.pop(sid, None)
+    response.del_cookie("sid")
+
+# — API handlers —
+
+async def api_health(req):
+    return _web.json_response({"status": "online", "bot": "KING BYPASS", "uptime": _uptime()})
+
+async def api_bot_stats(req):
+    def _int(k):
+        v = os.environ.get(k)
+        return int(v) if v and v.isdigit() else None
+    return _web.json_response({
+        "servers":       len(bot.guilds) if bot.is_ready() else _int("BOT_SERVERS"),
+        "users":         _int("BOT_USERS"),
+        "commandsUsed":  _int("BOT_COMMANDS_USED"),
+        "totalBypasses": _int("BOT_TOTAL_BYPASSES"),
+        "pingMs":        round(bot.latency * 1000) if bot.is_ready() else _int("BOT_PING_MS"),
+        "version":       os.environ.get("BOT_VERSION"),
+        "uptime":        _uptime(),
+    })
+
+async def api_bypass_proxy(req):
+    url = req.rel_url.query.get("url", "").strip()
+    if not url or not _is_url(url):
+        return _web.json_response({"error": "URL inválida"}, status=400)
+    loop = asyncio.get_running_loop()
+    result, error = await loop.run_in_executor(None, _bypass_sync, url)
+    if result:
+        return _web.json_response({"success": True, "result": result})
+    return _web.json_response({"success": False, "error": error or "Error desconocido"}, status=502)
+
+async def api_status(req):
+    try:
+        async with aiohttp.ClientSession() as s:
+            async with s.get("https://weao.xyz/api/status/exploits",
+                             timeout=aiohttp.ClientTimeout(total=10)) as r:
+                exploits = await r.json() if r.status == 200 else []
+            async with s.get("https://weao.xyz/api/versions/current",
+                             timeout=aiohttp.ClientTimeout(total=10)) as r:
+                versions = await r.json() if r.status == 200 else {}
+        return _web.json_response({"exploits": exploits, "versions": versions})
+    except Exception as e:
+        return _web.json_response({"exploits": [], "versions": {}, "error": str(e)})
+
+async def api_commands(req):
+    return _web.json_response([
+        {"name": "bypass",          "description": "🔗 Bypass un enlace",                   "usage": "/bypass <url>"},
+        {"name": "setupautobypass", "description": "⚙️ Auto-bypass en este canal",           "usage": "/setupautobypass",   "permission": "Admin"},
+        {"name": "executor",        "description": "📋 Lista executors de Roblox",           "usage": "/executor list"},
+        {"name": "set",             "description": "⚙️ Canal para avisos de executors",      "usage": "/set <canal>",       "permission": "Admin"},
+        {"name": "ping",            "description": "🏓 Ver latencia del bot",                "usage": "/ping"},
+        {"name": "suported",        "description": "📋 Lista de servicios soportados",       "usage": "/suported"},
+        {"name": "say",             "description": "📢 El bot envía un mensaje",             "usage": "/say <mensaje>",     "permission": "Manage Messages"},
+        {"name": "help",            "description": "📖 Mostrar todos los comandos",          "usage": "/help"},
+    ])
+
+# — Discord OAuth —
+
+async def api_auth_discord(req):
+    state = secrets.token_urlsafe(16)
+    _sessions[f"oauth_state_{state}"] = {"ts": time.time()}
+    params = {
+        "client_id":     DISCORD_CLIENT_ID_WEB,
+        "redirect_uri":  DISCORD_REDIRECT_URI_W,
+        "response_type": "code",
+        "scope":         "identify guilds",
+        "state":         state,
+    }
+    raise _web.HTTPFound(f"https://discord.com/api/oauth2/authorize?{urlencode(params)}")
+
+async def api_auth_callback(req):
+    code  = req.rel_url.query.get("code",  "")
+    state = req.rel_url.query.get("state", "")
+    if not _sessions.pop(f"oauth_state_{state}", None) or not code:
+        raise _web.HTTPFound("/?error=invalid_state")
+    try:
+        async with aiohttp.ClientSession() as s:
+            async with s.post(f"{DISCORD_API}/oauth2/token", data={
+                "client_id":     DISCORD_CLIENT_ID_WEB,
+                "client_secret": DISCORD_CLIENT_SECRET_W,
+                "grant_type":    "authorization_code",
+                "code":          code,
+                "redirect_uri":  DISCORD_REDIRECT_URI_W,
+            }) as r:
+                tok = await r.json()
+            if "access_token" not in tok:
+                raise _web.HTTPFound("/?error=token_failed")
+            hdrs = {"Authorization": f"Bearer {tok['access_token']}"}
+            async with s.get(f"{DISCORD_API}/users/@me",        headers=hdrs) as r: user   = await r.json()
+            async with s.get(f"{DISCORD_API}/users/@me/guilds", headers=hdrs) as r: guilds = await r.json() if r.status == 200 else []
+    except _web.HTTPFound:
+        raise
+    except Exception as e:
+        logger.warning(f"OAuth error: {e}")
+        raise _web.HTTPFound("/?error=oauth_failed")
+    sid = secrets.token_urlsafe(32)
+    resp = _web.HTTPFound("/discord")
+    _set_session(resp, sid, {
+        "id":          user.get("id"),
+        "username":    user.get("username"),
+        "discriminator": user.get("discriminator", "0"),
+        "avatar":      user.get("avatar"),
+        "banner":      user.get("banner"),
+        "accentColor": user.get("accent_color"),
+        "guilds":      guilds,
+    })
+    raise resp
+
+async def api_auth_me(req):
+    session = _get_session(req)
+    if not session:
+        return _web.json_response({"user": None}, status=401)
+    return _web.json_response({"user": session})
+
+async def api_auth_logout(req):
+    resp = _web.HTTPFound("/")
+    _clear_session(resp, req)
+    raise resp
+
+# — SPA fallback —
+
+async def spa_fallback(req):
+    idx = os.path.join(DIST_DIR, "index.html")
+    if os.path.exists(idx):
+        return _web.FileResponse(idx)
+    return _web.Response(
+        text="Dashboard no construido. Sube los archivos dist/ al repo.",
+        status=503
+    )
+
+def _build_webapp():
+    app = _web.Application()
+    app.router.add_get("/api/health",                   api_health)
+    app.router.add_get("/api/bot/stats",                api_bot_stats)
+    app.router.add_get("/api/bypass/proxy",             api_bypass_proxy)
+    app.router.add_get("/api/status",                   api_status)
+    app.router.add_get("/api/commands",                 api_commands)
+    app.router.add_get("/api/auth/me",                  api_auth_me)
+    app.router.add_get("/api/auth/discord",             api_auth_discord)
+    app.router.add_get("/api/auth/discord/callback",    api_auth_callback)
+    app.router.add_get("/api/auth/logout",              api_auth_logout)
+    if os.path.exists(os.path.join(DIST_DIR, "assets")):
+        app.router.add_static("/assets", os.path.join(DIST_DIR, "assets"), show_index=False)
+    app.router.add_route("GET", "/{path_info:.*}", spa_fallback)
+    return app
 
 # ── ENTRY POINT ─────────────────────────────────────────────────
 
-if __name__ == "__main__":
+async def _main():
+    webapp  = _build_webapp()
+    runner  = _web.AppRunner(webapp)
+    await runner.setup()
+    site = _web.TCPSite(runner, "0.0.0.0", PORT)
+    await site.start()
+    logger.info(f"🌐 Web server on port {PORT}")
+
     if not TOKEN:
-        logger.error("❌ DISCORD_TOKEN no configurado.")
-        exit(1)
-    start_health()
+        logger.warning("⚠️  DISCORD_TOKEN no configurado — solo web server activo.")
+        await asyncio.Event().wait()
+        return
+
     logger.info("🚀 Iniciando KING BYPASS...")
-    bot.run(TOKEN)
+    await bot.start(TOKEN)
+
+if __name__ == "__main__":
+    asyncio.run(_main())
