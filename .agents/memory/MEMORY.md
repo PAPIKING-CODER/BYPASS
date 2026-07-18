@@ -1,0 +1,5 @@
+- [Rate-limits circular import fix](rate-limits.md) — bypassLimiter/authLimiter must live in lib/rate-limits.ts, not app.ts; importing from app.ts creates a circular dep via routes/index.ts.
+- [Discord OAuth config](discord-oauth.md) — DISCORD_CLIENT_ID=1525040833814855710; redirect URI set to dev domain; update to prod URL after deployment.
+- [PWA icons](pwa-icons.md) — icon-192.png and icon-512.png generated with ImageMagick; SW only registers in PROD (import.meta.env.PROD).
+- [GitHub remote](github-remote.md) — repo PAPIKING-CODER/BYPASS on branch main; force-push used after pre-existing remote content caused rebase conflict.
+- [Artifact re-registration](artifact-rereg.md) — if bypass-dashboard artifact is dropped, use verifyAndReplaceArtifactToml on .replit-artifact/artifact.toml to re-register without recreating code.
