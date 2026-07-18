@@ -96,7 +96,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => v
               <>
                 <img src={user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.username}`} alt="Avatar" className="w-10 h-10 rounded-full border border-primary/30" />
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-white truncate max-w-[120px]">{user.displayName}</span>
+                  <span className="text-sm font-bold text-white truncate max-w-[120px]">{user.username}</span>
                   <span className="text-xs font-mono text-primary truncate">@{user.username}</span>
                 </div>
               </>

@@ -10,14 +10,12 @@ import type { DiscordGuild } from './discordGuild';
 export interface DiscordUser {
   id: string;
   username: string;
-  displayName: string;
+  discriminator: string;
   /** @nullable */
   avatar?: string | null;
   /** @nullable */
   banner?: string | null;
   /** @nullable */
-  email?: string | null;
-  createdAt?: string;
+  accentColor?: number | null;
   guilds?: DiscordGuild[];
-  badges?: string[];
 }

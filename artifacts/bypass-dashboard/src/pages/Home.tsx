@@ -5,6 +5,7 @@ import { Link } from 'wouter';
 import { formatNumber } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useMusic } from '@/components/MusicProvider';
+import { BOT_INVITE_URL } from '@/lib/constants';
 
 interface BypassResult {
   originalUrl: string;
@@ -177,9 +178,9 @@ export default function Home() {
               Integrated directly with Discord and your favorite executors.
             </p>
             <div className="flex flex-wrap gap-3 sm:gap-4">
-              <Link href="/discord" className="glow-btn bg-primary text-primary-foreground px-5 sm:px-6 py-3 rounded-md font-bold uppercase tracking-wider text-sm flex items-center gap-2">
+              <a href={BOT_INVITE_URL} target="_blank" rel="noreferrer" className="glow-btn bg-primary text-primary-foreground px-5 sm:px-6 py-3 rounded-md font-bold uppercase tracking-wider text-sm flex items-center gap-2">
                 <Shield className="w-4 h-4" /> Add to Discord
-              </Link>
+              </a>
               <Link href="/commands" className="glass-panel px-5 sm:px-6 py-3 rounded-md font-bold uppercase tracking-wider text-sm text-white hover:bg-white/10 transition-colors flex items-center gap-2">
                 View Commands
               </Link>

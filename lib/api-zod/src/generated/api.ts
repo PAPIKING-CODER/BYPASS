@@ -47,18 +47,16 @@ export const LogoutResponse = zod.object({
 export const GetMeResponse = zod.object({
   "id": zod.string(),
   "username": zod.string(),
-  "displayName": zod.string(),
+  "discriminator": zod.string(),
   "avatar": zod.string().nullish(),
   "banner": zod.string().nullish(),
-  "email": zod.string().nullish(),
-  "createdAt": zod.string().optional(),
+  "accentColor": zod.number().nullish(),
   "guilds": zod.array(zod.object({
   "id": zod.string(),
   "name": zod.string(),
   "icon": zod.string().nullish(),
   "owner": zod.boolean().optional()
-})).optional(),
-  "badges": zod.array(zod.string()).optional()
+})).optional()
 })
 
 

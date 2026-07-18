@@ -221,25 +221,19 @@ components:
           type: string
         username:
           type: string
-        displayName:
+        discriminator:
           type: string
         avatar:
           type: ["string", "null"]
         banner:
           type: ["string", "null"]
-        email:
-          type: ["string", "null"]
-        createdAt:
-          type: string
+        accentColor:
+          type: ["integer", "null"]
         guilds:
           type: array
           items:
             $ref: "#/components/schemas/DiscordGuild"
-        badges:
-          type: array
-          items:
-            type: string
-      required: [id, username, displayName]
+      required: [id, username, discriminator]
 
     DiscordGuild:
       type: object
