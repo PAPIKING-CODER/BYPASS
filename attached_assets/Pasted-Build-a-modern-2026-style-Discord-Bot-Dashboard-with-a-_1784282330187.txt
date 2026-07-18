@@ -1,0 +1,201 @@
+Build a modern 2026-style Discord Bot Dashboard with a futuristic Cyberpunk + Glassmorphism design.
+
+Theme
+
+- Dark mode by default.
+- Black background with red and blue neon accents.
+- Glassmorphism cards (blur + transparency).
+- Smooth animations using Framer Motion or CSS.
+- Animated particles in the background.
+- Responsive for desktop and mobile.
+- Fast loading.
+
+Pages
+
+- Home
+- Dashboard
+- Commands
+- API Status
+- Statistics
+- Changelog
+- Support
+- Settings
+
+---
+
+Home Page
+
+The Home page should be the main feature of the website.
+
+At the top include:
+
+- Bot logo
+- Bot name
+- Status badge (Online / Offline)
+- Invite button
+- Support Server button
+- GitHub button
+
+Below that create a large glass card titled:
+
+🔗 Link Bypass
+
+Inside the card include:
+
+- Large input box:
+  "Paste a supported link..."
+
+- Bypass button with animation.
+
+- Loading animation while waiting.
+
+After clicking the button:
+
+- Send a POST request to my API.
+
+I'll replace the endpoint later.
+
+Example:
+
+POST YOUR_API_URL
+
+{
+  "url": "<user_link>"
+}
+
+The API returns JSON.
+
+Example:
+
+{
+  "success": true,
+  "result": "https://example.com/bypass"
+}
+
+Display the result inside a beautiful card.
+
+Include:
+
+- Copy button
+- Open button
+- QR Code button
+- Share button
+
+If an error occurs, display a modern error card.
+
+If loading, show animated skeleton loaders.
+
+---
+
+Recent Results
+
+Under the bypass card create:
+
+Recent Bypasses
+
+Each card should display:
+
+- Original URL
+- Result URL
+- Time
+- Copy button
+
+Store the history in Local Storage.
+
+---
+
+Dashboard
+
+Display live statistics:
+
+- Servers
+- Users
+- Commands Used
+- Total Bypasses
+- Uptime
+- Ping
+- CPU
+- RAM
+- Version
+
+Use animated counters.
+
+---
+
+API Status
+
+Display status cards for:
+
+- Discord API
+- MongoDB
+- Render
+- UptimeRobot
+- AI API
+- Bypass API
+
+Green if online.
+
+Red if offline.
+
+---
+
+Commands
+
+Beautiful searchable command list.
+
+Each command should have:
+
+- Name
+- Description
+- Category
+- Copy command button
+
+---
+
+Settings
+
+Include:
+
+- Dark / Light mode
+- Accent color picker
+- Enable animations
+- Save preferences
+
+Use Local Storage.
+
+---
+
+Extras
+
+Add:
+
+- Toast notifications
+- Modern modal windows
+- Smooth page transitions
+- Floating action button
+- Scroll progress bar
+- Back-to-top button
+- Beautiful footer
+- Keyboard shortcuts
+- Mobile sidebar
+- Glass navigation bar
+
+---
+
+Technologies
+
+Use:
+
+- React
+- Vite
+- Tailwind CSS
+- Framer Motion
+- React Router
+- Axios
+- Lucide Icons
+
+Organize the project with clean components and folders.
+
+Write clean, production-ready code with comments where necessary.
+
+Leave placeholders for my API URL so I can easily replace it later.

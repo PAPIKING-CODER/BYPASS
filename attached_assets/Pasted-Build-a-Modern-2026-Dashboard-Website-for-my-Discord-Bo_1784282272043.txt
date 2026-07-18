@@ -1,0 +1,369 @@
+Build a Modern 2026 Dashboard Website for my Discord Bot
+
+Create a premium-looking website using React + Vite + Tailwind CSS + Framer Motion + Axios + React Router.
+
+The design should look similar to Discord, Vercel, GitHub and modern dashboards.
+
+Theme
+
+- Dark Mode
+- Black background
+- Red and Blue Neon
+- Glassmorphism
+- Blur Effects
+- Smooth animations
+- Responsive
+- Beautiful loading screens
+- Modern cards
+- Animated background particles
+
+---
+
+Navigation Tabs
+
+Create a left sidebar with icons.
+
+Tabs:
+
+🏠 Home
+
+🔗 Bypass
+
+💻 Executors
+
+📊 Status
+
+📜 Commands
+
+🤖 Discord
+
+📈 Statistics
+
+⚙️ Settings
+
+❤️ Support
+
+---
+
+HOME
+
+Display:
+
+- Large Bot Logo
+- Bot Name
+- Animated Banner
+- Online Status
+- Total Servers
+- Total Users
+- Total Bypasses
+- Invite Button
+- Discord Button
+- TikTok Button
+
+Beautiful animations everywhere.
+
+---
+
+BYPASS PAGE
+
+Create a modern glass card.
+
+Input:
+
+Paste supported link...
+
+Button:
+
+Generate Bypass
+
+Use this API:
+
+GET
+
+https://4pi-bypass.vercel.app/api/bypass?url={URL}
+
+Replace spaces and encode the URL correctly.
+
+Show:
+
+✅ Success Card
+
+Original URL
+
+Bypassed URL
+
+Copy Button
+
+Open Button
+
+QR Code Button
+
+Share Button
+
+Save history in Local Storage.
+
+Show loading animation while waiting.
+
+Display modern error cards.
+
+---
+
+EXECUTORS PAGE
+
+Fetch exploit status from:
+
+GET
+
+https://weao.xyz/api/status/exploits
+
+Display every executor as beautiful cards.
+
+Each card shows:
+
+Logo
+
+Name
+
+Status
+
+Version
+
+Platform
+
+Updated Time
+
+Green if Working
+
+Yellow if Updating
+
+Red if Patched
+
+Include searching.
+
+Include filtering.
+
+---
+
+STATUS PAGE
+
+Fetch Roblox version:
+
+GET
+
+https://weao.xyz/api/versions/current
+
+Display:
+
+Current Version
+
+Windows Version
+
+Mac Version
+
+Android Version
+
+iOS Version
+
+Update Time
+
+Display as animated dashboard cards.
+
+Also include:
+
+Discord API
+
+MongoDB
+
+Render
+
+Bypass API
+
+AI API
+
+Website Status
+
+Use green/red indicators.
+
+---
+
+COMMANDS PAGE
+
+Beautiful searchable command list.
+
+Each command card includes:
+
+Command
+
+Description
+
+Category
+
+Permissions
+
+Copy Button
+
+Examples
+
+---
+
+DISCORD PAGE
+
+Use Discord OAuth2 login.
+
+After login display:
+
+Discord Avatar
+
+Username
+
+Display Name
+
+User ID
+
+Banner (if available)
+
+Account Creation Date
+
+Badges (if available)
+
+Server Membership (if available)
+
+Theme
+
+Provide a Logout button.
+
+Use my Discord Bot OAuth credentials through environment variables.
+
+Never hardcode secrets.
+
+---
+
+SUPPORT PAGE
+
+Display my Discord server.
+
+Invite:
+
+https://discord.gg/nU9MNnByHH
+
+Show:
+
+Discord Logo
+
+Join Server Button
+
+Online Members (placeholder if unavailable)
+
+Server Description
+
+---
+
+TIKTOK
+
+Display my TikTok profile.
+
+https://www.tiktok.com/@bensonulysess1?_r=1&_t=ZT-986b3oc1PcU
+
+Show:
+
+TikTok Logo
+
+Profile Card
+
+Open Profile Button
+
+---
+
+SETTINGS
+
+Allow users to change:
+
+Dark / Light Mode
+
+Accent Color
+
+Animations
+
+Sidebar Style
+
+Card Style
+
+Save settings in Local Storage.
+
+---
+
+EXTRA FEATURES
+
+Animated particles background
+
+Glass navigation bar
+
+Floating Action Button
+
+Toast Notifications
+
+Back To Top Button
+
+Modern Footer
+
+Keyboard Shortcuts
+
+Loading Skeletons
+
+Ripple Effects
+
+Animated Counters
+
+Page Transitions
+
+Hover Animations
+
+Blur Effects
+
+Glow Effects
+
+Beautiful Icons
+
+Responsive Mobile Layout
+
+---
+
+API Structure
+
+Create a dedicated services folder.
+
+Example:
+
+services/
+
+bypass.js
+
+executor.js
+
+status.js
+
+discord.js
+
+commands.js
+
+All requests must use Axios.
+
+Handle API failures gracefully.
+
+Never crash the app.
+
+---
+
+Code Quality
+
+Use reusable React components.
+
+Clean folder structure.
+
+Modern coding practices.
+
+No placeholder pages except where API data is unavailable.
+
+Write production-ready code with comments where necessary.
+
+The final website should feel like a premium 2026 dashboard with smooth animations, glassmorphism, neon effects, and a professional user experience.

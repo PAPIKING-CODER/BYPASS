@@ -3,20 +3,30 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: BYPASS Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Discord OAuth2 authentication
+  - name: bot
+    description: Discord bot statistics
+  - name: commands
+    description: Bot commands
+  - name: bypass
+    description: Link bypass proxy
+  - name: status
+    description: Service status checks
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +34,163 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/discord:
+    get:
+      operationId: discordAuthRedirect
+      tags: [auth]
+      summary: Start Discord OAuth2 flow
+      responses:
+        "302":
+          description: Redirect to Discord
+
+  /auth/discord/callback:
+    get:
+      operationId: discordAuthCallback
+      tags: [auth]
+      summary: Discord OAuth2 callback
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect after auth
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current user
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current authenticated Discord user
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscordUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /bot/stats:
+    get:
+      operationId: getBotStats
+      tags: [bot]
+      summary: Get bot statistics (servers, users, bypasses, uptime, etc.)
+      responses:
+        "200":
+          description: Bot statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStats"
+
+  /commands:
+    get:
+      operationId: getCommands
+      tags: [commands]
+      summary: Get list of all bot commands
+      responses:
+        "200":
+          description: List of commands
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BotCommand"
+
+  /bypass/proxy:
+    get:
+      operationId: proxyBypass
+      tags: [bypass]
+      summary: Proxy bypass API call to avoid CORS
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bypass result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BypassResult"
+        "400":
+          description: Invalid URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /status/services:
+    get:
+      operationId: getServiceStatus
+      tags: [status]
+      summary: Get real-time status of all services (Discord API, MongoDB, Render, Bypass API, AI API, Website)
+      responses:
+        "200":
+          description: Service statuses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServiceStatus"
+
+  /status/roblox:
+    get:
+      operationId: getRobloxStatus
+      tags: [status]
+      summary: Get current Roblox version info
+      responses:
+        "200":
+          description: Roblox version data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RobloxStatus"
+
+  /status/executors:
+    get:
+      operationId: getExecutors
+      tags: [status]
+      summary: Get exploit executor statuses
+      responses:
+        "200":
+          description: Executor list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Executor"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +198,162 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required: [message]
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    DiscordUser:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        displayName:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        banner:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        guilds:
+          type: array
+          items:
+            $ref: "#/components/schemas/DiscordGuild"
+        badges:
+          type: array
+          items:
+            type: string
+      required: [id, username, displayName]
+
+    DiscordGuild:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon:
+          type: ["string", "null"]
+        owner:
+          type: boolean
+      required: [id, name]
+
+    BotStats:
+      type: object
+      properties:
+        servers:
+          type: integer
+        users:
+          type: integer
+        commandsUsed:
+          type: integer
+        totalBypasses:
+          type: integer
+        uptime:
+          type: integer
+        ping:
+          type: integer
+        version:
+          type: string
+        online:
+          type: boolean
+      required: [servers, users, commandsUsed, totalBypasses, uptime, ping, version, online]
+
+    BotCommand:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        permissions:
+          type: string
+        usage:
+          type: string
+        examples:
+          type: array
+          items:
+            type: string
+      required: [name, description, category, permissions, usage, examples]
+
+    BypassResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        originalUrl:
+          type: string
+        bypassedUrl:
+          type: ["string", "null"]
+        error:
+          type: ["string", "null"]
+        service:
+          type: ["string", "null"]
+      required: [success, originalUrl]
+
+    ServiceStatus:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [online, offline, degraded]
+        latency:
+          type: ["integer", "null"]
+        lastChecked:
+          type: string
+      required: [name, status, lastChecked]
+
+    RobloxStatus:
+      type: object
+      properties:
+        currentVersion:
+          type: string
+        windowsVersion:
+          type: ["string", "null"]
+        macVersion:
+          type: ["string", "null"]
+        androidVersion:
+          type: ["string", "null"]
+        iosVersion:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+      required: [currentVersion, updatedAt]
+
+    Executor:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+          enum: [working, updating, patched, unknown]
+        version:
+          type: ["string", "null"]
+        platform:
+          type: string
+        updatedAt:
+          type: string
+        logo:
+          type: ["string", "null"]
+      required: [name, status, platform, updatedAt]

@@ -1,0 +1,171 @@
+PWA Application
+
+Convert the website into a Progressive Web App.
+
+Add:
+
+- Install button
+- App icon
+- Splash screen
+- Offline fallback
+- Mobile app feeling
+- Push notifications support
+
+It should work like an application on Android and PC.Real-Time Features
+
+Add real-time updates.
+
+Use WebSockets if needed.
+
+Real-time:
+
+- Bot status
+- API status
+- Notifications
+- User activity
+- System events
+
+Do not refresh the page to update data.Admin Dashboard
+
+Create a protected admin panel.
+
+Features:
+
+- Admin login
+- User management
+- View logs
+- API status
+- System monitoring
+- Website statistics
+- Manage announcements
+- Manage maintenance mode
+
+Only authorized Discord users can access it.
+
+Use Discord roles/permissions.Testing Requirements
+
+Create tests for important features.
+
+Test:
+
+- API connections
+- Components
+- Authentication
+- Forms
+- Database operations
+- Responsive layouts
+
+Fix all errors before deployment.
+
+The project must pass tests before release.Performance Optimization
+
+Optimize the entire website.
+
+Add:
+
+- Lazy loading
+- Code splitting
+- Image optimization
+- API caching
+- Loading skeletons
+- Debounced searches
+- Reduced unnecessary renders
+
+Target:
+
+- Fast loading
+- Smooth animations
+- Low RAM usage
+- Good mobile performance
+
+The website should feel like a native application.Advanced Logging System
+
+Create a real logging system.
+
+Track:
+
+- API requests
+- Errors
+- User actions
+- Login events
+- System events
+- Failed requests
+
+Create an admin log viewer.
+
+Include:
+
+- Date
+- Time
+- User
+- Action
+- Status
+
+Add filters and search.Database Integration
+
+Add a real database system.
+ 
+Use PostgreSQL. Or other public one free or make one
+
+Store real data:
+
+- User accounts
+- Discord profiles
+- Bypass history
+- Settings
+- Website analytics
+- Logs
+- User preferences
+
+Create:
+
+- Database models
+- CRUD operations
+- Connection handling
+- Error handling
+
+Never store important data only in Local Storage.
+
+Local Storage should only be used for preferences.# Security Requirements
+ 
+Make the website secure and production ready.
+ 
+Add:
+ 
+ 
+- Input validation on all forms.
+ 
+- Protection against spam requests.
+ 
+- Rate limiting for API endpoints.
+ 
+- Secure API communication.
+ 
+- Hide all private keys and tokens.
+ 
+- Use environment variables.
+ 
+- Sanitize user inputs.
+ 
+- Secure Discord OAuth flow.
+ 
+- Session protection.
+ 
+- Error logs without exposing sensitive information.
+ 
+
+ 
+Never expose:
+ 
+ 
+- Bot tokens
+ 
+- API keys
+ 
+- Client secrets
+ 
+- Database credentials
+ 
+
+ 
+The backend must handle security, not the frontend.

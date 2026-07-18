@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "BYPASS Dashboard"
+version = "1.0.0"
+id = "artifacts/bypass-dashboard"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22307
+
+[services.development]
+run = "pnpm --filter @workspace/bypass-dashboard run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bypass-dashboard", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/bypass-dashboard/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22307"
+BASE_PATH = "/"
